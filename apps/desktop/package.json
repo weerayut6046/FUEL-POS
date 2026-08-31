@@ -1,0 +1,18 @@
+{
+  "name": "@fuel-pos/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ตัวห่อหน้าจอ POS ปั๊มน้ำมันสำหรับติดตั้งบน Windows / macOS / Linux",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:linux": "electron-builder --linux --publish never",
+    "dist:mac": "electron-builder --mac --publish never"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}

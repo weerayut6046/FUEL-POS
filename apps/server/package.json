@@ -1,0 +1,25 @@
+{
+  "name": "@fuel-pos/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "concurrently -k -n tsc,srv -c gray,cyan \"tsc -b -w --preserveWatchOutput\" \"node --watch --disable-warning=ExperimentalWarning dist/main.js\"",
+    "start": "node --disable-warning=ExperimentalWarning dist/main.js",
+    "test": "tsc -p tsconfig.test.json && node --disable-warning=ExperimentalWarning --test \"dist-test/test/**/*.test.js\"",
+    "clean": "rimraf dist dist-test tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/static": "^10.1.3",
+    "@fastify/websocket": "^11.0.1",
+    "@fuel-pos/pump-core": "*",
+    "@fuel-pos/shared": "*",
+    "fastify": "^5.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

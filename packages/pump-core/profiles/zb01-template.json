@@ -1,0 +1,174 @@
+{
+  "id": "zb01-template",
+  "name": "ZB01-1 / RT-TG224 (แม่แบบ — ยังไม่ยืนยันกับตู้จริง)",
+  "vendor": "บอร์ด ZB01-1 (PCB C254562)",
+  "unverified": true,
+  "description": "แม่แบบสำหรับตู้จ่ายจีนที่ใช้บอร์ด ZB01-1 ต่อผ่านขั้ว 17 (RS-485 A/B). ค่าคำสั่ง/ตำแหน่งไบต์ในไฟล์นี้ยังไม่ได้ยืนยันกับฮาร์ดแวร์จริง ให้ใช้หน้า Protocol Lab ดักจับข้อมูลบนบัสก่อน แล้วแก้ไฟล์นี้ให้ตรงกับของจริง ดูขั้นตอนที่ docs/02-protocol-discovery.md",
+
+  "_frameLayout": {
+    "request": "02 | ADDR | CMD | ARG.. | SUM8 | 03",
+    "response": "02 | ADDR | CMD | NOZ | ST | VOL(3 BCD) | AMT(3 BCD) | PRICE(2 BCD) | TOTAL(4 BCD) | SUM8 | 03",
+    "checksum": "ผลรวมไบต์ตั้งแต่ ADDR ถึงไบต์ก่อน SUM8 ตัดเหลือ 8 บิต"
+  },
+
+  "serial": {
+    "baudRate": 9600,
+    "dataBits": 8,
+    "stopBits": 1,
+    "parity": "none",
+    "rtsControl": false,
+    "rtsPreDelayMs": 1,
+    "rtsPostDelayMs": 2
+  },
+
+  "framing": {
+    "kind": "delimited",
+    "stx": ["0x02"],
+    "etx": ["0x03"],
+    "escape": "0x10",
+    "maxLength": 64
+  },
+  "_escapeNote": "ต้องมี escape เมื่อใช้ STX/ETX กับข้อมูลไบนารี มิฉะนั้นไบต์ข้อมูลที่บังเอิญเท่ากับ 0x03 (เช่น สถานะ 'กำลังจ่าย' = 3) จะทำให้เฟรมถูกตัดกลางคัน ถ้าตู้จริงไม่ได้ทำ byte-stuffing ให้เปลี่ยน framing.kind เป็น 'length' แทน",
+
+  "checksum": {
+    "kind": "sum8",
+    "from": 1,
+    "to": -2,
+    "at": -2,
+    "endian": "le"
+  },
+
+  "numbers": {
+    "volumeDecimals": 2,
+    "amountDecimals": 2,
+    "priceDecimals": 2,
+    "totalizerVolumeDecimals": 2,
+    "totalizerAmountDecimals": 2
+  },
+
+  "addressing": {
+    "at": 1,
+    "offset": 0,
+    "responseAt": 1
+  },
+
+  "timing": {
+    "pollIntervalMs": 400,
+    "responseTimeoutMs": 300,
+    "interCommandDelayMs": 30,
+    "retries": 1,
+    "offlineAfterFailures": 3
+  },
+
+  "pollGranularity": "per_nozzle",
+  "nozzlesPerPump": 2,
+
+  "requests": {
+    "status": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x11"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 }
+      ]
+    },
+    "readTotalizer": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x12"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 }
+      ]
+    },
+    "authorize": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x21"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 }
+      ]
+    },
+    "presetAmount": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x22"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 },
+        { "kind": "var", "name": "preset", "encoding": "bcd", "length": 3 }
+      ]
+    },
+    "presetVolume": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x23"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 },
+        { "kind": "var", "name": "preset", "encoding": "bcd", "length": 3 }
+      ]
+    },
+    "stop": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x24"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 }
+      ]
+    },
+    "clear": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x25"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 }
+      ]
+    },
+    "setPrice": {
+      "expectResponse": true,
+      "tokens": [
+        { "kind": "address" },
+        { "kind": "const", "bytes": ["0x26"] },
+        { "kind": "var", "name": "nozzle", "encoding": "u8", "length": 1 },
+        { "kind": "var", "name": "price", "encoding": "bcd", "length": 2 }
+      ]
+    }
+  },
+
+  "responses": [
+    {
+      "name": "status",
+      "match": [{ "at": 2, "equals": "0x91" }],
+      "fields": [
+        { "name": "nozzle", "at": 3, "length": 1, "encoding": "u8" },
+        { "name": "status", "at": 4, "length": 1, "encoding": "u8" },
+        { "name": "volume", "at": 5, "length": 3, "encoding": "bcd" },
+        { "name": "amount", "at": 8, "length": 3, "encoding": "bcd" },
+        { "name": "unitPrice", "at": 11, "length": 2, "encoding": "bcd" },
+        { "name": "totalizerVolume", "at": 13, "length": 4, "encoding": "bcd" }
+      ]
+    },
+    {
+      "name": "totalizer",
+      "match": [{ "at": 2, "equals": "0x92" }],
+      "fields": [
+        { "name": "nozzle", "at": 3, "length": 1, "encoding": "u8" },
+        { "name": "totalizerVolume", "at": 4, "length": 4, "encoding": "bcd" },
+        { "name": "totalizerAmount", "at": 8, "length": 4, "encoding": "bcd" }
+      ]
+    },
+    {
+      "name": "ack",
+      "match": [{ "at": 2, "equals": "0x90" }],
+      "fields": [{ "name": "errorCode", "at": 3, "length": 1, "encoding": "u8" }]
+    }
+  ],
+
+  "statusMap": {
+    "0": "idle",
+    "1": "authorized",
+    "2": "nozzle_out",
+    "3": "filling",
+    "4": "complete",
+    "5": "stopped",
+    "15": "error"
+  }
+}

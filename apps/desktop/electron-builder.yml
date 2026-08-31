@@ -1,0 +1,62 @@
+appId: com.fuelpos.app
+productName: FuelPOS
+copyright: FUEL-POS
+
+directories:
+  output: ../../release
+  buildResources: build
+
+# ไฟล์ของตัว Electron shell เอง
+files:
+  - main.cjs
+  - package.json
+
+# ไฟล์ของระบบ POS ทั้งหมด — คงโครงสร้างโฟลเดอร์เดิมไว้
+# เพื่อให้เส้นทางที่โค้ดใช้อ้างถึงกันยังทำงานได้เหมือนตอนพัฒนา
+extraResources:
+  - from: ../../apps/server/dist
+    to: app-payload/apps/server/dist
+  - from: ../../apps/pos-ui/dist
+    to: app-payload/apps/pos-ui/dist
+  - from: ../../packages/shared/dist
+    to: app-payload/packages/shared/dist
+  - from: ../../packages/pump-core/dist
+    to: app-payload/packages/pump-core/dist
+  - from: ../../packages/pump-core/profiles
+    to: app-payload/packages/pump-core/profiles
+  # โมดูลที่ต้องใช้ตอนรัน (fastify, serialport ฯลฯ)
+  - from: ../../node_modules
+    to: app-payload/node_modules
+    filter:
+      - '**/*'
+      - '!**/*.md'
+      - '!**/*.map'
+      - '!**/test/**'
+      - '!**/tests/**'
+      - '!**/.bin/**'
+      - '!typescript/**'
+      - '!vite/**'
+      - '!@vitejs/**'
+      - '!electron*/**'
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ระบบ POS ปั๊มน้ำมัน
+
+linux:
+  target: [AppImage, deb]
+  category: Office
+
+mac:
+  target: [dmg]
+  category: public.app-category.business

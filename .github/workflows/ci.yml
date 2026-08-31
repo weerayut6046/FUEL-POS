@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # ต้อง 22 ขึ้นไปเพราะระบบใช้ node:sqlite ที่มากับ Node
+          node-version: '22'
+          cache: npm
+
+      - name: ติดตั้งไลบรารี
+        run: npm ci
+
+      - name: สร้างไฟล์โปรแกรม
+        run: npm run build
+
+      - name: รันชุดทดสอบ
+        run: npm test
