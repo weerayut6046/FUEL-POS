@@ -25,3 +25,29 @@ jobs:
 
       - name: รันชุดทดสอบ
         run: npm test
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: ติดตั้งไลบรารี (เว็บแอป)
+        run: npm ci
+
+      - name: ตรวจ TypeScript
+        run: npm run typecheck
+
+      - name: รันชุดทดสอบ
+        run: npm test
+
+      - name: สร้างไฟล์โปรแกรม
+        run: npm run build
