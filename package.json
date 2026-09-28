@@ -19,7 +19,10 @@
     "test": "npm run test -w @fuel-pos/pump-core && npm run test -w @fuel-pos/server",
     "typecheck": "tsc -b tsconfig.build.json",
     "clean": "rimraf --glob \"packages/*/dist\" \"packages/*/dist-test\" \"packages/*/tsconfig.tsbuildinfo\" \"apps/*/dist\" \"apps/*/dist-test\" \"apps/*/tsconfig.tsbuildinfo\" tsconfig.tsbuildinfo release",
-    "pack:win": "npm run build && npm --prefix apps/desktop install && npm --prefix apps/desktop run dist:win"
+    "pack:win": "npm run build && npm --prefix apps/desktop install && npm --prefix apps/desktop run dist:win",
+    "web:install": "npm --prefix apps/web install",
+    "web:dev": "npm --prefix apps/web run dev",
+    "web:build": "npm --prefix apps/web run build"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
