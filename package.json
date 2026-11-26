@@ -2,12 +2,13 @@
   "name": "fuel-pos",
   "version": "0.1.0",
   "private": true,
-  "description": "\u0e23\u0e30\u0e1a\u0e1a POS \u0e1b\u0e31\u0e4a\u0e21\u0e19\u0e49\u0e33\u0e21\u0e31\u0e19 \u0e04\u0e27\u0e1a\u0e04\u0e38\u0e21\u0e15\u0e39\u0e49\u0e08\u0e48\u0e32\u0e22\u0e1c\u0e48\u0e32\u0e19 RS-485/RS-422 (cross-platform, \u0e40\u0e19\u0e49\u0e19 Windows)",
+  "description": "ระบบ POS ปั๊มน้ำมัน ควบคุมตู้จ่ายผ่าน RS-485/RS-422 (cross-platform, เน้น Windows)",
   "license": "MIT",
   "workspaces": [
     "packages/*",
     "apps/server",
-    "apps/pos-ui"
+    "apps/pos-ui",
+    "apps/cloud-api"
   ],
   "engines": {
     "node": ">=22.5.0"
@@ -19,7 +20,9 @@
     "test": "npm run test -w @fuel-pos/pump-core && npm run test -w @fuel-pos/server",
     "typecheck": "tsc -b tsconfig.build.json",
     "clean": "rimraf --glob \"packages/*/dist\" \"packages/*/dist-test\" \"packages/*/tsconfig.tsbuildinfo\" \"apps/*/dist\" \"apps/*/dist-test\" \"apps/*/tsconfig.tsbuildinfo\" tsconfig.tsbuildinfo release",
-    "pack:win": "npm run build && npm --prefix apps/desktop install && npm --prefix apps/desktop run dist:win"
+    "pack:win": "npm run build && npm --prefix apps/desktop install && npm --prefix apps/desktop run dist:win",
+    "build:cloud": "npm run build -w @fuel-pos/cloud-api",
+    "test:cloud": "npm run test -w @fuel-pos/cloud-api"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

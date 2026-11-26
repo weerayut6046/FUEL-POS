@@ -1,0 +1,3 @@
+Sarabun — Copyright 2015 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun)
+ฟอนต์นี้ใช้สัญญาอนุญาต SIL Open Font License, Version 1.1 — https://openfontlicense.org
+(ดาวน์โหลดจาก Google Fonts)
