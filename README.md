@@ -5,6 +5,12 @@
 
 ออกแบบตามหน้างานจริง: **ตู้จ่าย 2 ตู้ ตู้ละ 2 หัวจ่าย** (บอร์ด ZB01-1 ในตู้ RT-TG224)
 
+> **ใหม่: ระบบบริหารจัดการปั๊มน้ำมันบนคลาวด์ (SaaS) — MVP**
+> ปิดกะหน้าลาน · สต็อกน้ำมันในถัง · Dashboard เจ้าของ + LINE OA · ตั้งค่าสาขาและผู้ใช้
+> หลายลูกค้าในระบบเดียว แยกข้อมูลด้วย PostgreSQL Row-Level Security · แอป Flutter ใช้ได้ทุกจอและออฟไลน์ได้
+>
+> `apps/cloud-api` (NestJS + PostgreSQL) · `apps/station_app` (Flutter) — 📖 **[อ่านเอกสาร →](./docs/06-saas-cloud.md)**
+
 ---
 
 ## ทำอะไรได้บ้าง
@@ -84,6 +90,7 @@ npm start
 | [3. คู่มือ Protocol Profile](./docs/03-protocol-profile.md) | ความหมายของทุกฟิลด์ในไฟล์ JSON |
 | [4. ติดตั้งบน Windows](./docs/04-install-windows.md) | 3 วิธีติดตั้ง · การตั้งค่า · สำรองข้อมูล · แก้ปัญหา |
 | [5. สถาปัตยกรรม](./docs/05-architecture.md) | โครงสร้างโค้ดและเหตุผลเบื้องหลังการออกแบบ |
+| [6. ระบบคลาวด์ (SaaS)](./docs/06-saas-cloud.md) | MVP ปิดกะ · สต็อกถัง · Dashboard · ตั้งค่า — multi-tenant · แอป Flutter · ออฟไลน์ |
 
 ---
 

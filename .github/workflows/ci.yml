@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-and-test:
+    name: POS หน้าร้าน (ควบคุมตู้จ่าย)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,3 +26,61 @@ jobs:
 
       - name: รันชุดทดสอบ
         run: npm test
+
+  cloud-api:
+    name: ระบบหลังบ้านคลาวด์ (NestJS + PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: สร้างบทบาทและฐานข้อมูล
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f apps/cloud-api/scripts/db-init.sql
+
+      - name: ติดตั้งไลบรารี
+        run: npm ci
+
+      # ชุดทดสอบรวมการยืนยันว่าลูกค้ารายหนึ่งมองไม่เห็นข้อมูลอีกราย (RLS)
+      - name: รันชุดทดสอบ
+        run: npm run test:cloud
+
+  station-app:
+    name: แอป Flutter
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/station_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.1'
+          channel: stable
+          cache: true
+
+      - name: ติดตั้งแพ็กเกจ
+        run: flutter pub get
+
+      - name: ตรวจโค้ด
+        run: flutter analyze
+
+      - name: รันชุดทดสอบ
+        run: flutter test
+
+      - name: สร้างเว็บ
+        run: flutter build web --release --no-web-resources-cdn

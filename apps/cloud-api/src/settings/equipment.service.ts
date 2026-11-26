@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { AuthCtx } from '../auth/auth-context.js';
-import { assertBranch, branchDto } from '../common/access.js';
+import { assertBranch, branchDto, tenantNow } from '../common/access.js';
 import { notFound, unprocessable } from '../common/errors.js';
 import { Db, many, maybeOne, one, Tx } from '../db/db.js';
 import { calibrationToJson, CalPointJson, parseCalibration } from '../stock/calibration.js';
@@ -323,7 +323,43 @@ export class EquipmentService {
         const cal = await currentCalibration(tx, t.id);
         if (cal) calibrations[t.id] = calibrationDto(cal);
       }
+      // ปลายกะล่าสุดของแต่ละหัวจ่าย — แอปใช้เติมต้นกะให้อัตโนมัติ (แม้ออฟไลน์)
+      const lastClose = await many<{ nozzle_id: string; reading: string; shift_id: string; business_date: string; shift_no: number }>(
+        tx,
+        `SELECT DISTINCT ON (r.nozzle_id) r.nozzle_id, r.reading, s.id AS shift_id, s.business_date, s.shift_no
+         FROM meter_readings_current r JOIN shifts s ON s.id = r.shift_id
+         WHERE r.kind = 'close' AND s.branch_id = $1
+         ORDER BY r.nozzle_id, s.business_date DESC, s.shift_no DESC`,
+        [branchId],
+      );
+      const lastShift = await maybeOne<{ id: string; business_date: string; shift_no: number; status: string }>(
+        tx,
+        'SELECT id, business_date, shift_no, status FROM shifts WHERE branch_id = $1 ORDER BY business_date DESC, shift_no DESC LIMIT 1',
+        [branchId],
+      );
+      const openShift = await maybeOne<{ id: string; business_date: string; shift_no: number }>(
+        tx,
+        "SELECT id, business_date, shift_no FROM shifts WHERE branch_id = $1 AND status = 'open' LIMIT 1",
+        [branchId],
+      );
+      const settings = await one<{ cash_alert_satang: number }>(tx, 'SELECT cash_alert_satang FROM tenant_settings');
       return {
+        today: (await tenantNow(tx)).today,
+        cashAlertSatang: settings.cash_alert_satang,
+        lastCloseReadings: lastClose.map((r) => ({
+          nozzleId: r.nozzle_id,
+          reading: r.reading,
+          shiftId: r.shift_id,
+          businessDate: r.business_date,
+          shiftNo: r.shift_no,
+        })),
+        lastShift: lastShift && {
+          id: lastShift.id,
+          businessDate: lastShift.business_date,
+          shiftNo: lastShift.shift_no,
+          status: lastShift.status,
+        },
+        openShift: openShift && { id: openShift.id, businessDate: openShift.business_date, shiftNo: openShift.shift_no },
         branch: branchDto(branch),
         fuelTypes: fuelTypes.map(fuelTypeDto),
         tanks: tanks.map(tankDto),

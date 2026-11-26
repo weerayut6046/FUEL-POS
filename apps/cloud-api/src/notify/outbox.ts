@@ -19,8 +19,8 @@ export async function enqueueNotification(
   );
 }
 
-/** วันที่แบบไทยสั้น: 2026-11-26 → 26/11/2026 */
+/** วันที่แบบไทย (พ.ศ.): 2026-11-26 → 26/11/2569 */
 export function thaiDate(isoDate: string): string {
   const [y, m, d] = isoDate.split('-');
-  return `${d}/${m}/${y}`;
+  return `${d}/${m}/${Number(y) + 543}`;
 }
